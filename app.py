@@ -224,6 +224,50 @@ def show_venue(venue_id):
     return render_template('pages/show_venue.html', venue=data)
 
 
+#  Create Venue
+#  ----------------------------------------------------------------
+
+@app.route('/venues/create', methods=['GET'])
+def create_venue_form():
+    form = VenueForm()
+    return render_template('forms/new_venue.html', form=form)
+
+
+@app.route('/venues/create', methods=['POST'])
+def create_venue_submission():
+    data = request.form
+
+    try:
+        tmp_genres = request.form.getlist('genres')
+        genres = ','.join(tmp_genres)
+
+        tmp_seeking_artist = request.form.get('seeking_artist', default=False)
+        seeking_artist = True if tmp_seeking_artist == 'y' else False
+
+        new_venue = Venue(
+            name=data['name'],
+            city=data['city'],
+            state=data['state'],
+            address=data['address'],
+            phone=data['phone'],
+            genres=genres,
+            seeking_talent=seeking_artist,
+            image_link=data['image_link'],
+            facebook_link=data['facebook_link'],
+            website=data['website']
+        )
+        db.session.add(new_venue)
+        db.session.commit()
+        flash('Venue ' + data['name'] + ' was successfully listed!')
+    except:
+        db.session.rollback()
+        flash('An error occurred. Venue ' + data['name'] + ' could not be listed.')
+    finally:
+        db.session.close()
+
+    return render_template('pages/home.html')
+
+
 # ----------------------------------------------------------------------------#
 # Launch.
 # ----------------------------------------------------------------------------#
