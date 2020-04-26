@@ -290,6 +290,16 @@ def delete_venue(venue_id):
     return render_template('pages/home.html')
 
 
+#  Artists
+#  ----------------------------------------------------------------
+@app.route('/artists')
+def artists():
+
+    artists = Artist.query.distinct(Artist.id, Artist.name).all()
+    data = [a.serialize for a in artists]
+
+    return render_template('pages/artists.html', artists=data)
+
 # ----------------------------------------------------------------------------#
 # Launch.
 # ----------------------------------------------------------------------------#
