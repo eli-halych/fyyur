@@ -313,6 +313,23 @@ def search_artists():
                            search_term=search_term)
 
 
+@app.route('/artists/<int:artist_id>')
+def show_artist(artist_id):
+    artist = db.session.query(Artist).filter(Artist.id == artist_id).first()
+    data = artist.serialize
+
+    upcoming_shows = list(filter(lambda x: x.start_time >=
+                                           utc.localize(datetime.now()), artist.shows))
+    past_shows = list(filter(lambda x: x.start_time <
+                                       utc.localize(datetime.now()), artist.shows))
+    data['upcoming_shows'] = upcoming_shows
+    data['past_shows'] = past_shows
+    data['upcoming_shows_count'] = len(upcoming_shows)
+    data['past_shows_count'] = len(past_shows)
+
+    return render_template('pages/show_artist.html', artist=data)
+
+
 # ----------------------------------------------------------------------------#
 # Launch.
 # ----------------------------------------------------------------------------#
