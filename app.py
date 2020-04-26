@@ -52,6 +52,18 @@ class Show(db.Model):
     def __repr__(self):
         return f'<Show {self.id}>'
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'venue_id': self.venue_id,
+            'artist_id': self.artist_id,
+            "venue_name": self.venue.name,
+            "artist_name": self.artist.name,
+            "artist_image_link": self.artist.image_link,
+            "start_time": self.start_time.isoformat()
+        }
+
 
 class Venue(db.Model):
     __tablename__ = 'venue'
@@ -73,6 +85,39 @@ class Venue(db.Model):
     def __repr__(self):
         return f'<Venue {self.id} {self.name}>'
 
+    @property
+    def serialize(self):
+
+        return {
+            'id': self.id,
+            'name': self.name,
+            'city': self.city,
+            'state': self.state,
+            'address': self.address,
+            'genres': self.genres.split(","),
+            'phone': self.phone,
+            'image_link': self.image_link,
+            'seeking_talent': self.seeking_talent,
+            'facebook_link': self.facebook_link,
+            'website': self.website
+        }
+
+    @property
+    def serialize_list(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'num_upcoming_shows': len(list(filter(lambda x: x.start_time > utc.localize(datetime.now()), self.shows)))
+        }
+
+    @property
+    def group_by_city_state(self):
+        return {'city': self.city,
+                'state': self.state,
+                'venues': [v.serialize_list
+                           for v in Venue.query.filter(Venue.city == self.city,
+                                                       Venue.state == self.state).all()]}
+
 
 class Artist(db.Model):
     __tablename__ = 'artist'
@@ -93,6 +138,21 @@ class Artist(db.Model):
     def __repr__(self):
         return f'<Artist {self.id} {self.name}>'
 
+    @property
+    def serialize(self):
+
+        return {
+            'id': self.id,
+            'name': self.name,
+            'city': self.city,
+            'state': self.state,
+            'phone': self.phone,
+            'genres': self.genres.split(","),
+            'image_link': self.image_link,
+            'seeking_venue': self.seeking_venue,
+            'facebook_link': self.facebook_link,
+            'website': self.website
+        }
 
 # ----------------------------------------------------------------------------#
 # Launch.
