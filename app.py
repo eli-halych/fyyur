@@ -107,7 +107,6 @@ class Venue(db.Model):
 
     @property
     def serialize(self):
-
         return {
             'id': self.id,
             'name': self.name,
@@ -160,7 +159,6 @@ class Artist(db.Model):
 
     @property
     def serialize(self):
-
         return {
             'id': self.id,
             'name': self.name,
@@ -173,6 +171,7 @@ class Artist(db.Model):
             'facebook_link': self.facebook_link,
             'website': self.website
         }
+
 
 # ----------------------------------------------------------------------------#
 # Controllers.
@@ -188,11 +187,23 @@ def index():
 
 @app.route('/venues')
 def venues():
-
     city_states = Venue.query.distinct(Venue.city, Venue.state).all()
     data = [venue.group_by_city_state for venue in city_states]
 
     return render_template('pages/venues.html', areas=data)
+
+
+@app.route('/venues/search', methods=['POST'])
+def search_venues():
+    search_term = request.form.get('search_term', '')
+    venues = db.session.query(Venue).filter(Venue.name.ilike(f'%{search_term}%')).all()
+
+    data = [v.serialize for v in venues]
+    response = {'count': len(venues),
+                "data": data}
+
+    return render_template('pages/search_venues.html', results=response,
+                           search_term=search_term)
 
 
 @app.route('/venues/<int:venue_id>')
