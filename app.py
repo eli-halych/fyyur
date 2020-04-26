@@ -457,16 +457,33 @@ def create_artist_submission():
 
     return render_template('pages/home.html')
 
+
 #  Shows
 #  ----------------------------------------------------------------
 
 @app.route('/shows')
 def shows():
-
     shows = Show.query.all()
     data = [show.serialize for show in shows]
 
     return render_template('pages/shows.html', shows=data)
+
+
+@app.route('/shows/search', methods=['POST'])
+def search_shows():
+    search_term = request.form.get('search_term', '')
+
+    shows = db.session.query(Show).join(Artist).join(Venue) \
+        .filter(or_(Artist.name.ilike(f'%{search_term}%'),
+                    Venue.name.ilike(f'%{search_term}%'))).all()
+
+    data = [show.serialize for show in shows]
+    response = {'count': len(shows),
+                "data": data}
+
+    return render_template('pages/search_show.html', results=response,
+                           search_term=search_term)
+
 
 # ----------------------------------------------------------------------------#
 # Launch.
