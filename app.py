@@ -195,6 +195,24 @@ def venues():
     return render_template('pages/venues.html', areas=data)
 
 
+@app.route('/venues/<int:venue_id>')
+def show_venue(venue_id):
+    venue = db.session.query(Venue).filter(Venue.id == venue_id).first()
+    data = venue.serialize
+
+    upcoming_shows = list(filter(lambda x: x.start_time >=
+                                           utc.localize(datetime.now()), venue.shows))
+    past_shows = list(filter(lambda x: x.start_time <
+                                       utc.localize(datetime.now()), venue.shows))
+
+    data['upcoming_shows'] = upcoming_shows
+    data['past_shows'] = past_shows
+    data['upcoming_shows_count'] = len(upcoming_shows)
+    data['past_shows_count'] = len(past_shows)
+
+    return render_template('pages/show_venue.html', venue=data)
+
+
 # ----------------------------------------------------------------------------#
 # Launch.
 # ----------------------------------------------------------------------------#
