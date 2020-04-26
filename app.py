@@ -485,6 +485,34 @@ def search_shows():
                            search_term=search_term)
 
 
+@app.route('/shows/create')
+def create_shows():
+    form = ShowForm()
+    return render_template('forms/new_show.html', form=form)
+
+
+@app.route('/shows/create', methods=['POST'])
+def create_show_submission():
+    data = request.form
+    try:
+        from dateutil.parser import parse
+        new_show = Show(
+            venue_id=data['venue_id'],
+            artist_id=data['artist_id'],
+            start_time=parse(data['start_time'])
+        )
+        db.session.add(new_show)
+        db.session.commit()
+        flash('Show was successfully listed!')
+    except:
+        db.session.rollback()
+        flash('An error occurred. Show could not be listed.')
+    finally:
+        db.session.close()
+
+    return render_template('pages/home.html')
+
+
 # ----------------------------------------------------------------------------#
 # Launch.
 # ----------------------------------------------------------------------------#
