@@ -294,11 +294,24 @@ def delete_venue(venue_id):
 #  ----------------------------------------------------------------
 @app.route('/artists')
 def artists():
-
     artists = Artist.query.distinct(Artist.id, Artist.name).all()
     data = [a.serialize for a in artists]
 
     return render_template('pages/artists.html', artists=data)
+
+
+@app.route('/artists/search', methods=['POST'])
+def search_artists():
+    search_term = request.form.get('search_term', '')
+    artists = db.session.query(Artist).filter(Artist.name.ilike(f'%{search_term}%')).all()
+
+    data = [a.serialize for a in artists]
+    response = {'count': len(artists),
+                "data": data}
+
+    return render_template('pages/search_artists.html', results=response,
+                           search_term=search_term)
+
 
 # ----------------------------------------------------------------------------#
 # Launch.
