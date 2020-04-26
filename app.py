@@ -413,6 +413,48 @@ def edit_venue_submission(venue_id):
         db.session.close()
     return redirect(url_for('show_venue', venue_id=venue_id))
 
+#  Create Artist
+#  ----------------------------------------------------------------
+
+@app.route('/artists/create', methods=['GET'])
+def create_artist_form():
+    form = ArtistForm()
+    return render_template('forms/new_artist.html', form=form)
+
+
+@app.route('/artists/create', methods=['POST'])
+def create_artist_submission():
+    data = request.form
+
+    try:
+
+        tmp_genres = request.form.getlist('genres')
+        genres = ','.join(tmp_genres)
+
+        tmp_seeking_venue = request.form.get('seeking_venue', default=False)
+        seeking_venue = True if tmp_seeking_venue == 'y' else False
+
+        new_artist = Artist(
+            name=data['name'],
+            city=data['city'],
+            state=data['state'],
+            phone=data['phone'],
+            genres=genres,
+            image_link=data['image_link'],
+            facebook_link=data['facebook_link'],
+            seeking_venue=seeking_venue,
+            website=data['website']
+        )
+        db.session.add(new_artist)
+        db.session.commit()
+        flash('Artist ' + data['name'] + ' was successfully listed!')
+    except:
+        db.session.rollback()
+        flash('An error occurred. Artist ' + data['name'] + ' could not be listed.')
+    finally:
+        db.session.close()
+
+    return render_template('pages/home.html')
 
 # ----------------------------------------------------------------------------#
 # Launch.
