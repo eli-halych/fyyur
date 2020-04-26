@@ -183,6 +183,16 @@ def index():
     return render_template('pages/home.html')
 
 
+#  Venues
+#  ----------------------------------------------------------------
+
+@app.route('/venues')
+def venues():
+
+    city_states = Venue.query.distinct(Venue.city, Venue.state).all()
+    data = [venue.group_by_city_state for venue in city_states]
+
+    return render_template('pages/venues.html', areas=data)
 
 
 # ----------------------------------------------------------------------------#
