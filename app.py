@@ -268,6 +268,28 @@ def create_venue_submission():
     return render_template('pages/home.html')
 
 
+#  Delete Venue
+#  ----------------------------------------------------------------
+
+@app.route('/venues/<venue_id>/delete', methods=['DELETE'])
+def delete_venue(venue_id):
+    try:
+        venue = Venue.query.get(venue_id)
+        venue_name = venue.name
+
+        db.session.delete(venue)
+        db.session.commit()
+
+        flash('Venue ' + venue_name + ' was successfully deleted!')
+    except:
+        db.session.rollback()
+        flash('An error occurred. Venue ' + venue_name + ' could not be updated.')
+    finally:
+        db.session.close()
+
+    return render_template('pages/home.html')
+
+
 # ----------------------------------------------------------------------------#
 # Launch.
 # ----------------------------------------------------------------------------#
