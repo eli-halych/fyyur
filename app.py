@@ -330,6 +330,90 @@ def show_artist(artist_id):
     return render_template('pages/show_artist.html', artist=data)
 
 
+#  Update
+#  ----------------------------------------------------------------
+@app.route('/artists/<int:artist_id>/edit', methods=['GET'])
+def edit_artist(artist_id):
+    form = ArtistForm()
+
+    artist = db.session.query(Artist).filter(Artist.id == artist_id).first()
+    data = artist.serialize
+    return render_template('forms/edit_artist.html', form=form, artist=data)
+
+
+@app.route('/artists/<int:artist_id>/edit', methods=['POST'])
+def edit_artist_submission(artist_id):
+    data = request.form
+
+    try:
+        tmp_genres = request.form.getlist('genres')
+        genres = ','.join(tmp_genres)
+
+        tmp_seeking_venue = request.form.get('seeking_venue', default=False)
+        seeking_venue = True if tmp_seeking_venue == 'y' else False
+
+        artist = Artist.query.get(artist_id)
+        artist.name = data['name']
+        artist.city = data['city']
+        artist.state = data['state']
+        artist.phone = data['phone']
+        artist.genres = genres
+        artist.seeking_venue = seeking_venue
+        artist.image_link = data['image_link']
+        artist.facebook_link = data['facebook_link']
+        artist.website = data['website']
+        db.session.commit()
+        flash('Artist ' + data['name'] + ' was successfully updated!')
+    except:
+        db.session.rollback()
+        flash('An error occurred. Artist ' + data['name'] + ' could not be updated.')
+    finally:
+        db.session.close()
+
+    return redirect(url_for('show_artist', artist_id=artist_id))
+
+
+@app.route('/venues/<int:venue_id>/edit', methods=['GET'])
+def edit_venue(venue_id):
+    form = VenueForm()
+
+    venue = db.session.query(Venue).filter(Venue.id == venue_id).first()
+    data = venue.serialize
+    return render_template('forms/edit_venue.html', form=form, venue=data)
+
+
+@app.route('/venues/<int:venue_id>/edit', methods=['POST'])
+def edit_venue_submission(venue_id):
+    data = request.form
+
+    try:
+        tmp_genres = request.form.getlist('genres')
+        genres = ','.join(tmp_genres)
+
+        tmp_seeking_artist = request.form.get('seeking_artist', default=False)
+        seeking_artist = True if tmp_seeking_artist == 'y' else False
+
+        venue = Venue.query.get(venue_id)
+        venue.name = data['name']
+        venue.city = data['city']
+        venue.state = data['state']
+        venue.address = data['address']
+        venue.genres = genres
+        venue.phone = data['phone']
+        venue.seeking_talent = seeking_artist
+        venue.image_link = data['image_link']
+        venue.facebook_link = data['facebook_link']
+        venue.website = data['website']
+        db.session.commit()
+        flash('Venue ' + data['name'] + ' was successfully updated!')
+    except:
+        db.session.rollback()
+        flash('An error occurred. Venue ' + data['name'] + ' could not be updated.')
+    finally:
+        db.session.close()
+    return redirect(url_for('show_venue', venue_id=venue_id))
+
+
 # ----------------------------------------------------------------------------#
 # Launch.
 # ----------------------------------------------------------------------------#
