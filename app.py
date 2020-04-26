@@ -413,6 +413,7 @@ def edit_venue_submission(venue_id):
         db.session.close()
     return redirect(url_for('show_venue', venue_id=venue_id))
 
+
 #  Create Artist
 #  ----------------------------------------------------------------
 
@@ -455,6 +456,17 @@ def create_artist_submission():
         db.session.close()
 
     return render_template('pages/home.html')
+
+#  Shows
+#  ----------------------------------------------------------------
+
+@app.route('/shows')
+def shows():
+
+    shows = Show.query.all()
+    data = [show.serialize for show in shows]
+
+    return render_template('pages/shows.html', shows=data)
 
 # ----------------------------------------------------------------------------#
 # Launch.
